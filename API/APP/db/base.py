@@ -1,0 +1,1 @@
+from app.models import *  # Importa todos los modelos para que Alembic los reconozca
