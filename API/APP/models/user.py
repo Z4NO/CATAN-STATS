@@ -1,5 +1,6 @@
 from app.db.session import Base, engine
 from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime
+from sqlalchemy.orm import relationship
 
 class User(Base):
 
@@ -14,5 +15,7 @@ class User(Base):
     account_deleted = Column(DateTime, nullable=True)
     active = Column(Boolean, default=True)
     email = Column(String, unique=True, index=True, nullable=False)
+    groups = relationship("GroupMember", back_populates="user")
+    logs = relationship("GroupLog", back_populates="user", cascade="all, delete-orphan")
 
     
