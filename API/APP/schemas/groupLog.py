@@ -1,8 +1,7 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, TypeAdapter
 from datetime import datetime
 from typing import Optional, Dict
-from app.schemas.user import UserOut
-from app.schemas.group import GroupOut 
+
 
 class GroupLogOut(BaseModel):
     id: int
@@ -11,9 +10,14 @@ class GroupLogOut(BaseModel):
     action_type: str
     timestamp: datetime
     metadata: Optional[Dict] = None
-    user: Optional[UserOut] = None
-    group: Optional[GroupOut] = None
+    user: Optional["UserOut"] = None
+    group: Optional["GroupOut"] = None
 
     model_config = {
         "from_attributes": True
     }
+
+
+from app.schemas.user import UserOut
+from app.schemas.group import GroupOut 
+GroupLogOut.model_rebuild()

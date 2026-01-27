@@ -1,19 +1,19 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, TypeAdapter
 from typing import Optional
 from datetime import datetime
 from app.models.groupLog import ActionTypeEnum
-from app.schemas.groupMember import GroupMemberOut 
 
 class GroupBase(BaseModel):
     name: str
     description: Optional[str] = None
 
 class GroupCreate(GroupBase):
-    creator_id: int
+    pass
 
 class GroupOut(GroupBase):
     id: int
     created_at: datetime
+    creator_id: int
 
     model_config = {
         "from_attributes": True
@@ -39,4 +39,7 @@ class GroupWithMembersOut(GroupOut):
     members: list["GroupMemberOut"] = []
 
 class GroupWithLogsOut(GroupOut):
-    logs: list[GroupLogOut] = []
+    logs: list["GroupLogOut"] = []
+
+from app.schemas.groupMember import GroupMemberOut 
+GroupWithMembersOut.model_rebuild()
