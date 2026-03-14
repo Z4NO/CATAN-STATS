@@ -2,6 +2,7 @@ from pydantic import BaseModel, EmailStr, TypeAdapter
 from typing import Optional
 from datetime import datetime
 from app.models.groupMember import RoleEnum
+from app.schemas.user import UserOut
 
 
 class GroupMemberBase(BaseModel):
@@ -9,14 +10,15 @@ class GroupMemberBase(BaseModel):
 
 
 class GroupMemberOut(GroupMemberBase):
-    user_id: int
     group_id: int
+    role: RoleEnum
     joined_at: datetime
     left_at: Optional[datetime] = None
     banned: bool
     is_kicked: bool
     active: bool
     group: Optional["GroupOut"] = None
+    user: Optional[UserOut] = None
 
     model_config = {
         "from_attributes": True
@@ -53,3 +55,4 @@ class GroupMemberListOut(BaseModel):
 from app.schemas.group import GroupOut
 from app.schemas.groupLog import GroupLogOut
 GroupMemberOut.model_rebuild()
+GroupMemberWithLogsOut.model_rebuild()

@@ -1,8 +1,8 @@
-"""initial migration
+"""cleam
 
-Revision ID: 9d520034c0c4
+Revision ID: c7862dde220a
 Revises: 
-Create Date: 2026-01-25 01:33:40.592139
+Create Date: 2026-03-14 17:50:16.660256
 
 """
 from typing import Sequence, Union
@@ -10,11 +10,9 @@ from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
-from sqlalchemy import Text
-
 
 # revision identifiers, used by Alembic.
-revision: str = '9d520034c0c4'
+revision: str = 'c7862dde220a'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -26,12 +24,15 @@ def upgrade() -> None:
     op.create_table('groups',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
+    sa.Column('join_code', sa.String(), nullable=True),
+    sa.Column('privacy', sa.String(), nullable=False),
     sa.Column('description', sa.String(), nullable=True),
     sa.Column('creator_id', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_groups_id'), 'groups', ['id'], unique=False)
+    op.create_index(op.f('ix_groups_join_code'), 'groups', ['join_code'], unique=True)
     op.create_index(op.f('ix_groups_name'), 'groups', ['name'], unique=False)
     op.create_table('users',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -67,7 +68,7 @@ def upgrade() -> None:
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('action_type', sa.Enum('JOIN', 'LEAVE', 'KICK', 'BAN', 'CREATED_MATCH', name='actiontypeenum'), nullable=False),
     sa.Column('timestamp', sa.DateTime(), nullable=False),
-    sa.Column('extra_data', postgresql.JSON(astext_type=Text()), nullable=True),
+    sa.Column('extra_data', postgresql.JSON(astext_type=sa.Text()), nullable=True),
     sa.ForeignKeyConstraint(['group_id'], ['groups.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -85,6 +86,7 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_users_email'), table_name='users')
     op.drop_table('users')
     op.drop_index(op.f('ix_groups_name'), table_name='groups')
+    op.drop_index(op.f('ix_groups_join_code'), table_name='groups')
     op.drop_index(op.f('ix_groups_id'), table_name='groups')
     op.drop_table('groups')
     # ### end Alembic commands ###

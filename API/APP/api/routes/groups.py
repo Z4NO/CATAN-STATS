@@ -1,44 +1,70 @@
-from fastapi import APIRouter, Depends, HTTPException
-from app.models.groupMember import GroupMember
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+
+from app.api.dependencies import require_group_member
+from app.db.session import get_db
+from app.schemas.group import GroupOut, GroupCreate
 from app.schemas.groupMember import GroupMemberOut
-from app.securityf.auth import get_current_active_user
-from app.db.session import SessionLocal
-from app.services.groups import *
 from app.schemas.user import UserOut
+from app.securityf.auth import get_current_active_user
+from app.services.groups import (
+    create_group,
+    get_members_from_group,
+    join_group_by_code,
+    get_all_my_group_memberships,
+)
 
 
 router = APIRouter()
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
-@router.post("/create", response_model=GroupOut)
+@router.post("/create", response_model=GroupOut, status_code=status.HTTP_201_CREATED)
 async def create_new_group(
     group: GroupCreate,
     current_user: UserOut = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
-    """Create a new group with the current user as admin."""
     try:
-        result = create_group(db, current_user.id, group)
-        return result
+        return create_group(db, current_user.id, group)
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/my-groups", response_model=list[GroupMemberOut])
-async def get_all_my_groups(
-    current_user: UserOut=Depends(get_current_active_user),
+
+@router.get("/{group_id}/members", response_model=list[GroupMemberOut], dependencies=[Depends(require_group_member)])
+async def get_group_members(
+    group_id: int,
     db: Session = Depends(get_db)
 ):
-    """Retrieve the groups the current user is a member of."""
     try:
-        result = get_all_my_group_memberships(db, current_user.id)
-        return result
+        return get_members_from_group(db, group_id)
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-     
-    
+
+
+@router.post("/join", response_model=GroupOut)
+async def join_group(
+    code: str,
+    current_user: UserOut = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    try:
+        return join_group_by_code(db, current_user.id, code)
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/my-groups", response_model=list[GroupMemberOut])
+async def get_my_groups(
+    current_user: UserOut = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    try:
+        return get_all_my_group_memberships(db, current_user.id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

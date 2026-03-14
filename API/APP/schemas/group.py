@@ -2,10 +2,12 @@ from pydantic import BaseModel, TypeAdapter
 from typing import Optional
 from datetime import datetime
 from app.models.groupLog import ActionTypeEnum
+from app.models.group import PrivacyEnum
 
 class GroupBase(BaseModel):
     name: str
     description: Optional[str] = None
+    privacy: Optional[PrivacyEnum] = PrivacyEnum.PRIVATE
 
 class GroupCreate(GroupBase):
     pass
@@ -14,6 +16,7 @@ class GroupOut(GroupBase):
     id: int
     created_at: datetime
     creator_id: int
+    join_code: Optional[str] = None
 
     model_config = {
         "from_attributes": True
@@ -22,6 +25,7 @@ class GroupOut(GroupBase):
 class GroupUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
+    privacy: Optional[PrivacyEnum] = None
 
 class GroupLogOut(BaseModel):
     id: int
