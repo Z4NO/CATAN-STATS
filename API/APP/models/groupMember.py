@@ -21,7 +21,6 @@ class GroupMember(Base):
     active = Column(Boolean, default=True)
     left_at = Column(DateTime, nullable=True)
     banned = Column(Boolean, default=False)
-    is_kicked = Column(Boolean, default=False)
     user = relationship("User", back_populates="groups")
     group = relationship("Group", back_populates="members")
     

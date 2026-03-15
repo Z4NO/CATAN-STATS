@@ -1,8 +1,16 @@
 from pydantic import BaseModel, EmailStr, TypeAdapter
 from typing import Optional
 from datetime import datetime
+import enum
 from app.models.groupMember import RoleEnum
 from app.schemas.user import UserOut
+
+
+class MemberStatusFilter(str, enum.Enum):
+    ACTIVE = "active"
+    BANNED = "banned"
+    INACTIVE = "inactive"
+    ALL = "all"
 
 
 class GroupMemberBase(BaseModel):
@@ -15,7 +23,6 @@ class GroupMemberOut(GroupMemberBase):
     joined_at: datetime
     left_at: Optional[datetime] = None
     banned: bool
-    is_kicked: bool
     active: bool
     group: Optional["GroupOut"] = None
     user: Optional[UserOut] = None
@@ -35,7 +42,6 @@ class GroupMemberUpdate(BaseModel):
     active: Optional[bool] = None
     left_at: Optional[datetime] = None
     banned: Optional[bool] = None
-    is_kicked: Optional[bool] = None
     
 class GroupMemberWithLogsOut(GroupMemberOut):
     logs: Optional[list["GroupLogOut"]] = []

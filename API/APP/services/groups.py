@@ -1,8 +1,10 @@
 import datetime
 import secrets
+from typing import Optional
 from sqlalchemy.orm import Session
 from app.models.groupMember import GroupMember
-from app.schemas.groupMember import RoleEnum
+from app.models.groupLog import GroupLog, ActionTypeEnum
+from app.schemas.groupMember import RoleEnum, MemberStatusFilter
 from app.schemas.group import GroupOut, GroupCreate
 from app.models.group import Group, PrivacyEnum
 
@@ -36,12 +38,49 @@ def create_group(db: Session, user_id: int, group: GroupCreate) -> GroupOut:
     except Exception as e:
         db.rollback()
         raise e
-    
-def get_members_from_group(db: Session, group_id: int) -> list[GroupMember]:
+
+def kick_member_from_group(db: Session, group_id: int, user_id: int) -> bool:
     try:
-        memberships = db.query(GroupMember).filter(GroupMember.group_id == group_id).all()
+        membership = db.query(GroupMember).filter(
+            GroupMember.group_id == group_id,
+            GroupMember.user_id == user_id
+        ).first()
+        if not membership:
+            return False
+
+        membership.active = False
+        membership.left_at = datetime.datetime.now()
+
+        log = GroupLog(
+            group_id=group_id,
+            user_id=user_id,
+            action_type=ActionTypeEnum.KICK,
+        )
+        db.add(log)
+        db.commit()
+        return True
+    except Exception as e:
+        db.rollback()
+        raise e
+
+def get_members_from_group(
+    db: Session,
+    group_id: int,
+    status: Optional[MemberStatusFilter] = MemberStatusFilter.ACTIVE
+) -> list[GroupMember]:
+    try:
+        query = db.query(GroupMember).filter(GroupMember.group_id == group_id)
+
+        if status == MemberStatusFilter.ACTIVE:
+            query = query.filter(GroupMember.active == True, GroupMember.banned == False)
+        elif status == MemberStatusFilter.BANNED:
+            query = query.filter(GroupMember.banned == True)
+        elif status == MemberStatusFilter.INACTIVE:
+            query = query.filter(GroupMember.active == False, GroupMember.banned == False)
+
+        memberships = query.all()
         if not memberships:
-            raise ValueError(f"No members found for group with id {group_id}")
+            raise ValueError(f"No members found for group {group_id} with status {status.value}")
         return memberships
     except Exception as e:
         raise e
@@ -85,6 +124,13 @@ def join_group_by_code(db: Session, user_id: int, code: str) -> GroupOut:
             active=True
         )
         db.add(new_membership)
+
+        log = GroupLog(
+            group_id=group.id,
+            user_id=user_id,
+            action_type=ActionTypeEnum.JOIN,
+        )
+        db.add(log)
         db.commit()
         db.refresh(group)
         return group
