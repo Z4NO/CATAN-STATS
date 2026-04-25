@@ -9,9 +9,11 @@ from app.config import settings
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.token import Token
+from app.schemas.stats import PlayerGlobalProfileStats
 from app.schemas.user import UserCreate, UserOut
 from app.security import create_access_token, verify_password
 from app.securityf.auth import get_current_active_user
+from app.services.stats import get_player_profile_stats
 from app.services.user import create_user, get_user_by_email, get_user_by_username
 
 logger = logging.getLogger(__name__)
@@ -36,6 +38,18 @@ def authenticate_user(db: Session, username_or_email: str, password: str) -> Use
 @router.get("/me", response_model=UserOut)
 async def get_me(current_user: UserOut = Depends(get_current_active_user)):
     return current_user
+
+
+@router.get("/me/stats", response_model=PlayerGlobalProfileStats)
+async def get_my_stats(
+    current_user: UserOut = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    try:
+        return get_player_profile_stats(db, current_user.id)
+    except Exception as e:
+        logger.error(f"Error fetching stats for user {current_user.id}: {e}")
+        raise HTTPException(status_code=500, detail="Error calculando estadísticas")
 
 
 @router.post("/token", response_model=Token)

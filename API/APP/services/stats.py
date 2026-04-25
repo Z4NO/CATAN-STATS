@@ -11,6 +11,7 @@ from app.schemas.stats import (
     MonthCount,
     NemesisEntry,
     PartnerEntry,
+    PlayerGlobalProfileStats,
     PlayerProfileStats,
     PlayerStatsInGroup,
 )
@@ -174,7 +175,7 @@ def get_player_current_streak(db: Session, player_id: int) -> int:
 
     return streak
 
-def get_player_profile_stats(db: Session,user_id: int) -> PlayerProfileStats:
+def get_player_profile_stats(db: Session, user_id: int) -> PlayerGlobalProfileStats:
     try:
         player_matches_player = (
             db.query(MatchPlayer)
@@ -185,16 +186,69 @@ def get_player_profile_stats(db: Session,user_id: int) -> PlayerProfileStats:
             .all()
         )
 
-        all_my_points = [mp.points_earned for mp in player_matches_player]
         matches_played = len(player_matches_player)
+
+        if not matches_played:
+            return PlayerGlobalProfileStats(
+                user_id=user_id,
+                matches_played=0,
+                matches_won=0,
+                win_rate=0.0,
+                avg_points=0.0,
+                current_streak=0,
+                best_streak=0,
+                avg_thief_moves=0.0,
+                avg_cities=0.0,
+                avg_villages=0.0,
+                avg_roads_built=0.0,
+                longest_road_rate=0.0,
+                largest_army_rate=0.0,
+            )
+
         matches_won = sum(1 for mp in player_matches_player if mp.match.winner_id == user_id)
-        win_rate = round(matches_won / matches_played, 4) if matches_played else 0.0
-        avg_points = round(sum(all_my_points) / len(all_my_points), 2) if all_my_points else 0.0
-        streak = get_player_current_streak(db, user_id)
-    except Exception as e:
-        logger.error(
-            f"Error calculating player profile for user {user_id} {e}"
+        win_rate = round(matches_won / matches_played, 4)
+        avg_points = round(sum(mp.points_earned for mp in player_matches_player) / matches_played, 2)
+
+        avg_thief_moves = round(sum(mp.thief_moves or 0 for mp in player_matches_player) / matches_played, 2)
+        avg_cities = round(sum(mp.city_count or 0 for mp in player_matches_player) / matches_played, 2)
+        avg_villages = round(sum(mp.village_count or 0 for mp in player_matches_player) / matches_played, 2)
+        avg_roads_built = round(sum(mp.roads_built or 0 for mp in player_matches_player) / matches_played, 2)
+        longest_road_rate = round(sum(1 for mp in player_matches_player if mp.longest_road) / matches_played, 4)
+        largest_army_rate = round(sum(1 for mp in player_matches_player if mp.largest_army) / matches_played, 4)
+
+        current_streak = 0
+        for mp in player_matches_player:
+            if mp.match.winner_id == user_id:
+                current_streak += 1
+            else:
+                break
+
+        best_streak = 0
+        running = 0
+        for mp in reversed(player_matches_player):
+            if mp.match.winner_id == user_id:
+                running += 1
+                best_streak = max(best_streak, running)
+            else:
+                running = 0
+
+        return PlayerGlobalProfileStats(
+            user_id=user_id,
+            matches_played=matches_played,
+            matches_won=matches_won,
+            win_rate=win_rate,
+            avg_points=avg_points,
+            current_streak=current_streak,
+            best_streak=best_streak,
+            avg_thief_moves=avg_thief_moves,
+            avg_cities=avg_cities,
+            avg_villages=avg_villages,
+            avg_roads_built=avg_roads_built,
+            longest_road_rate=longest_road_rate,
+            largest_army_rate=largest_army_rate,
         )
+    except Exception as e:
+        logger.error(f"Error calculating player profile for user {user_id}: {e}")
         raise
 
 def get_player_profile_in_group(

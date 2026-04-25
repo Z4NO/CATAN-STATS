@@ -10,3 +10,8 @@ export async function getPlayerProfileStats(groupId, userId) {
   const res = await api.get(`/groups/${groupId}/players/${userId}/stats`)
   return res.data
 }
+
+export async function getMyStats() {
+  const res = await api.get('/users/me/stats')
+  return res.data
+}

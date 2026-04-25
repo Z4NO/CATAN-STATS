@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { ProtectedRoute } from './auth/ProtectedRoute.jsx'
+import MainLayout from './components/MainLayout.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import RegisterPage from './pages/RegisterPage.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
@@ -8,6 +9,12 @@ import JoinGroupPage from './pages/JoinGroupPage.jsx'
 import GroupDetailPage from './pages/GroupDetailPage.jsx'
 import MatchWizardPage from './pages/MatchWizardPage.jsx'
 import MatchDetailPage from './pages/MatchDetailPage.jsx'
+import ProfilePage from './pages/ProfilePage.jsx'
+
+function Protected({ children, tabbar = false }) {
+  const content = tabbar ? <MainLayout>{children}</MainLayout> : children
+  return <ProtectedRoute>{content}</ProtectedRoute>
+}
 
 export default function App() {
   return (
@@ -18,49 +25,57 @@ export default function App() {
         <Route
           path="/"
           element={
-            <ProtectedRoute>
+            <Protected tabbar>
               <DashboardPage />
-            </ProtectedRoute>
+            </Protected>
+          }
+        />
+        <Route
+          path="/me"
+          element={
+            <Protected tabbar>
+              <ProfilePage />
+            </Protected>
           }
         />
         <Route
           path="/groups/new"
           element={
-            <ProtectedRoute>
+            <Protected>
               <CreateGroupPage />
-            </ProtectedRoute>
+            </Protected>
           }
         />
         <Route
           path="/groups/join"
           element={
-            <ProtectedRoute>
+            <Protected>
               <JoinGroupPage />
-            </ProtectedRoute>
+            </Protected>
           }
         />
         <Route
           path="/groups/:groupId"
           element={
-            <ProtectedRoute>
+            <Protected tabbar>
               <GroupDetailPage />
-            </ProtectedRoute>
+            </Protected>
           }
         />
         <Route
           path="/groups/:groupId/matches/new"
           element={
-            <ProtectedRoute>
+            <Protected>
               <MatchWizardPage />
-            </ProtectedRoute>
+            </Protected>
           }
         />
         <Route
           path="/matches/:matchId"
           element={
-            <ProtectedRoute>
+            <Protected>
               <MatchDetailPage />
-            </ProtectedRoute>
+            </Protected>
           }
         />
         <Route path="*" element={<Navigate to="/" replace />} />

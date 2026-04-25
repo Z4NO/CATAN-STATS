@@ -53,3 +53,19 @@ class PlayerProfileStats(BaseModel):
     current_streak: int
     best_partner: Optional[PartnerEntry] = None
     nemesis: Optional[NemesisEntry] = None
+
+
+class PlayerGlobalProfileStats(BaseModel):
+    user_id: int
+    matches_played: int
+    matches_won: int
+    win_rate: float
+    avg_points: float
+    current_streak: int
+    best_streak: int
+    avg_thief_moves: float
+    avg_cities: float
+    avg_villages: float
+    avg_roads_built: float
+    longest_road_rate: float
+    largest_army_rate: float
