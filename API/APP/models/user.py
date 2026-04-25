@@ -16,6 +16,9 @@ class User(Base):
     active = Column(Boolean, default=True)
     email = Column(String, unique=True, index=True, nullable=False)
     groups = relationship("GroupMember", back_populates="user")
+    won_matches = relationship("Match", back_populates="winner", foreign_keys="[Match.winner_id]")
+    match_participations = relationship("MatchPlayer", back_populates="player")
+    match_events = relationship("MatchEvent", back_populates="player")
     logs = relationship("GroupLog", back_populates="user", cascade="all, delete-orphan")
 
     

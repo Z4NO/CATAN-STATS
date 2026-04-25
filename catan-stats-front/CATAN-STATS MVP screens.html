@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CATAN-STATS · MVP screens</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    html, body { margin:0; padding:0; background:#f0eee9; font-family: Inter, -apple-system, sans-serif; }
+    * { box-sizing: border-box; }
+  </style>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" src="design-canvas.jsx"></script>
+  <script type="text/babel" src="data.jsx"></script>
+  <script type="text/babel" src="ledger-system.jsx"></script>
+  <script type="text/babel" src="variation-a.jsx"></script>
+  <script type="text/babel" src="ledger-screens.jsx"></script>
+
+  <script type="text/babel" data-presets="react">
+    const FRAME_W = 360, FRAME_H = 760;
+
+    function App() {
+      return (
+        <DesignCanvas>
+          <DCSection
+            id="ledger"
+            title="Ledger · Fase 1 core"
+            subtitle="Warm minimal · serif display + mono numerics. Off-white parchment, accent terracotta. Vibe 'cuaderno de partidas'."
+          >
+            <DCArtboard id="a-login"     label="01 · Login"               width={FRAME_W} height={FRAME_H}><A_Login /></DCArtboard>
+            <DCArtboard id="a-home"      label="02 · Home / Grupos"       width={FRAME_W} height={FRAME_H}><A_Home /></DCArtboard>
+            <DCArtboard id="a-create"    label="03 · Crear grupo"         width={FRAME_W} height={FRAME_H}><A_CreateGroup /></DCArtboard>
+            <DCArtboard id="a-group"     label="04 · Detalle grupo"       width={FRAME_W} height={FRAME_H}><A_GroupDetail /></DCArtboard>
+            <DCArtboard id="a-new"       label="05 · Nueva partida (2/4)" width={FRAME_W} height={FRAME_H}><A_NewMatch /></DCArtboard>
+            <DCArtboard id="a-match"     label="06 · Detalle partida"     width={FRAME_W} height={FRAME_H}><A_MatchDetail /></DCArtboard>
+            <DCArtboard id="a-profile"   label="07 · Perfil de jugador"   width={FRAME_W} height={FRAME_H}><A_Profile /></DCArtboard>
+          </DCSection>
+
+          <DCSection
+            id="ledger-expanded"
+            title="Ledger expandido · Fase 1-4"
+            subtitle="Onboarding completo, wizard de partida en 4 pasos, miembros, modo en juego (Fase 3), dashboard desktop, matchups y estados vacíos. Mapeado al modelo del PDF."
+          >
+            <DCArtboard id="lx-register"  label="08 · Crear cuenta"          width={FRAME_W} height={FRAME_H}><L_Register /></DCArtboard>
+            <DCArtboard id="lx-recover"   label="09 · Recuperar acceso"      width={FRAME_W} height={FRAME_H}><L_Recover /></DCArtboard>
+            <DCArtboard id="lx-join"      label="10 · Unirse con código"     width={FRAME_W} height={FRAME_H}><L_JoinWithCode /></DCArtboard>
+            <DCArtboard id="lx-members"   label="11 · Miembros del grupo"    width={FRAME_W} height={FRAME_H}><L_GroupMembers /></DCArtboard>
+            <DCArtboard id="lx-empty"     label="12 · Estado vacío"          width={FRAME_W} height={FRAME_H}><L_EmptyState /></DCArtboard>
+            <DCArtboard id="lx-list"      label="13 · Historial filtrable"   width={FRAME_W} height={FRAME_H}><L_MatchList /></DCArtboard>
+            <DCArtboard id="lx-new1"      label="14 · Nueva partida 1/4"     width={FRAME_W} height={FRAME_H}><L_NewMatchStep1 /></DCArtboard>
+            <DCArtboard id="lx-new3"      label="15 · Nueva partida 3/4"     width={FRAME_W} height={FRAME_H}><L_NewMatchStep3 /></DCArtboard>
+            <DCArtboard id="lx-new4"      label="16 · Nueva partida 4/4"     width={FRAME_W} height={FRAME_H}><L_NewMatchStep4 /></DCArtboard>
+            <DCArtboard id="lx-live"      label="17 · Modo en juego (Fase 3)" width={FRAME_W} height={FRAME_H}><L_LiveMode /></DCArtboard>
+            <DCArtboard id="lx-matchups"  label="18 · Matchups"              width={FRAME_W} height={FRAME_H}><L_Matchups /></DCArtboard>
+            <DCArtboard id="lx-dashboard" label="19 · Dashboard (desktop)"   width={1200} height={780}><L_Dashboard /></DCArtboard>
+          </DCSection>
+
+          <DCPostIt x={40} y={20} w={300}>
+            <b>CATAN-STATS · MVP screens</b><br/><br/>
+            Dirección visual única (Ledger): cuaderno cálido, serif Fraunces + mono.
+            19 superficies cubriendo Fase 1 → Fase 4 del plan.<br/><br/>
+            Mock: peña de 5 jugadoras, 47 partidas, Alba lidera con 3W de racha.
+          </DCPostIt>
+        </DesignCanvas>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

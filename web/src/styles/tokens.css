@@ -1,0 +1,33 @@
+:root {
+  --paper: #f6f1e7;
+  --card: #fbf8f1;
+  --surface2: #efe8d7;
+  --ink: #1c1a16;
+  --ink2: #52483a;
+  --ink3: #8a7e6a;
+  --rule: #ddd3bf;
+  --rule-soft: #ebe2cd;
+  --accent: #b54a2a;
+  --accent-bg: #f3d8c8;
+  --win: #5a7a3a;
+  --win-bg: #e3ead0;
+  --alert: #a14a2a;
+  --alert-bg: #f6dccd;
+  --wood: #5a6f3a;
+  --brick: #a14a32;
+  --sheep: #c4d18d;
+  --wheat: #d4a93a;
+  --ore: #5d6b78;
+
+  --font-disp: Fraunces, "Cormorant Garamond", Georgia, serif;
+  --font-text: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", ui-monospace, monospace;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-pill: 999px;
+
+  --shadow-card: 0 1px 0 rgba(0, 0, 0, 0.04), 0 24px 48px -24px rgba(40, 30, 20, 0.18);
+}

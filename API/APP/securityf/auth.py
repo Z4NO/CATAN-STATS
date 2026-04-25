@@ -1,33 +1,49 @@
-from fastapi import Depends, HTTPException, status
+from typing import Optional
+
+from fastapi import Depends, HTTPException, Request, status
 from jwt import decode, InvalidTokenError
-from app.securityf.dependencies import oauth2_scheme
-from app.config import settings
-from app.services.user import get_user_by_id
-from app.schemas.token import TokenData
-from app.schemas.user import UserOut
-from app.db.session import get_db
 from sqlalchemy.orm import Session
 
+from app.config import settings
+from app.db.session import get_db
+from app.schemas.user import UserOut
+from app.securityf.dependencies import oauth2_scheme
+from app.services.user import get_user_by_id
+
+_UNAUTHORIZED = HTTPException(
+    status_code=status.HTTP_401_UNAUTHORIZED,
+    detail="No autenticado",
+    headers={"WWW-Authenticate": "Bearer"},
+)
+
+_INVALID_TOKEN = HTTPException(
+    status_code=status.HTTP_401_UNAUTHORIZED,
+    detail="No se pudieron validar las credenciales",
+    headers={"WWW-Authenticate": "Bearer"},
+)
+
+
 async def get_current_user(
-    token: str = Depends(oauth2_scheme),
+    request: Request,
+    header_token: Optional[str] = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
 ) -> UserOut:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="No se pudieron validar las credenciales",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
+    token = header_token or request.cookies.get("access_token")
+
+    if not token:
+        raise _UNAUTHORIZED
+
     try:
         payload = decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         user_id: str = payload.get("sub")
         if user_id is None:
-            raise credentials_exception
+            raise _INVALID_TOKEN
     except InvalidTokenError:
-        raise credentials_exception
+        raise _INVALID_TOKEN
 
     user = get_user_by_id(db, user_id)
     if not user:
-        raise credentials_exception
+        raise _INVALID_TOKEN
 
     return user
 

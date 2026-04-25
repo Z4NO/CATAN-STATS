@@ -9,10 +9,12 @@ from app.schemas.user import UserOut
 from app.securityf.auth import get_current_active_user
 from app.services.groups import (
     create_group,
+    get_all_my_group_memberships,
+    get_group_by_id,
     get_members_from_group,
     join_group_by_code,
-    get_all_my_group_memberships,
     kick_member_from_group,
+    leave_group,
 )
 
 
@@ -84,3 +86,26 @@ async def get_my_groups(
         return get_all_my_group_memberships(db, current_user.id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/{group_id}", response_model=GroupOut, dependencies=[Depends(require_group_member)])
+async def get_group_detail(
+    group_id: int,
+    db: Session = Depends(get_db),
+):
+    group = get_group_by_id(db, group_id)
+    if not group:
+        raise HTTPException(status_code=404, detail="Group not found")
+    return group
+
+
+@router.post("/{group_id}/leave", status_code=status.HTTP_200_OK)
+async def leave_group_endpoint(
+    group_id: int,
+    current_user: UserOut = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    success = leave_group(db, group_id, current_user.id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Active membership not found")
+    return {"detail": "left group"}

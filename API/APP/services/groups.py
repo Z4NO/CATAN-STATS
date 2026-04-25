@@ -68,22 +68,16 @@ def get_members_from_group(
     group_id: int,
     status: Optional[MemberStatusFilter] = MemberStatusFilter.ACTIVE
 ) -> list[GroupMember]:
-    try:
-        query = db.query(GroupMember).filter(GroupMember.group_id == group_id)
+    query = db.query(GroupMember).filter(GroupMember.group_id == group_id)
 
-        if status == MemberStatusFilter.ACTIVE:
-            query = query.filter(GroupMember.active == True, GroupMember.banned == False)
-        elif status == MemberStatusFilter.BANNED:
-            query = query.filter(GroupMember.banned == True)
-        elif status == MemberStatusFilter.INACTIVE:
-            query = query.filter(GroupMember.active == False, GroupMember.banned == False)
+    if status == MemberStatusFilter.ACTIVE:
+        query = query.filter(GroupMember.active == True, GroupMember.banned == False)
+    elif status == MemberStatusFilter.BANNED:
+        query = query.filter(GroupMember.banned == True)
+    elif status == MemberStatusFilter.INACTIVE:
+        query = query.filter(GroupMember.active == False, GroupMember.banned == False)
 
-        memberships = query.all()
-        if not memberships:
-            raise ValueError(f"No members found for group {group_id} with status {status.value}")
-        return memberships
-    except Exception as e:
-        raise e
+    return query.all()
 
 def is_user_banned_from_group(db: Session, user_id: int, group_id: int) -> bool:
     try:
@@ -139,7 +133,40 @@ def join_group_by_code(db: Session, user_id: int, code: str) -> GroupOut:
         raise e
 
 def get_all_my_group_memberships(db: Session, user_id: int) -> list[GroupMember]:
-    return db.query(GroupMember).filter(GroupMember.user_id == user_id).all()
+    return db.query(GroupMember).filter(
+        GroupMember.user_id == user_id,
+        GroupMember.active == True,
+        GroupMember.banned == False,
+    ).all()
+
+
+def get_group_by_id(db: Session, group_id: int) -> Optional[Group]:
+    return db.query(Group).filter(Group.id == group_id).first()
+
+
+def leave_group(db: Session, group_id: int, user_id: int) -> bool:
+    try:
+        membership = db.query(GroupMember).filter(
+            GroupMember.group_id == group_id,
+            GroupMember.user_id == user_id,
+            GroupMember.active == True,
+        ).first()
+        if not membership:
+            return False
+
+        membership.active = False
+        membership.left_at = datetime.datetime.now()
+
+        db.add(GroupLog(
+            group_id=group_id,
+            user_id=user_id,
+            action_type=ActionTypeEnum.LEAVE,
+        ))
+        db.commit()
+        return True
+    except Exception as e:
+        db.rollback()
+        raise e
 
 def verify_code_exists(db: Session, code: str) -> bool:
     return db.query(Group).filter(Group.join_code == code).first() is not None

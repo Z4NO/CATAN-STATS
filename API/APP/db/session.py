@@ -5,12 +5,17 @@ from sqlalchemy.orm import Session
 from typing import Generator
 
 connect_args = {}
+engine_kwargs = {}
+
 if settings.ENVIRONMENT == "dev":
     connect_args = {"check_same_thread": False}
+else:
+    engine_kwargs = {"pool_pre_ping": True}
 
 engine = create_engine(
     settings.DATABASE_URL,
-    connect_args=connect_args
+    connect_args=connect_args,
+    **engine_kwargs
 )
 
 def get_db() -> Generator[Session, None, None]:
