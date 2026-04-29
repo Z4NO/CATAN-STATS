@@ -9,7 +9,8 @@ import JoinGroupPage from './pages/JoinGroupPage.jsx'
 import GroupDetailPage from './pages/GroupDetailPage.jsx'
 import MatchWizardPage from './pages/MatchWizardPage.jsx'
 import MatchDetailPage from './pages/MatchDetailPage.jsx'
-import ProfilePage from './pages/ProfilePage.jsx'
+import StatsPage from './pages/StatsPage.jsx'
+import SettingsPage from './pages/SettingsPage.jsx'
 
 function Protected({ children, tabbar = false }) {
   const content = tabbar ? <MainLayout>{children}</MainLayout> : children
@@ -31,10 +32,18 @@ export default function App() {
           }
         />
         <Route
+          path="/stats"
+          element={
+            <Protected tabbar>
+              <StatsPage />
+            </Protected>
+          }
+        />
+        <Route
           path="/me"
           element={
             <Protected tabbar>
-              <ProfilePage />
+              <SettingsPage />
             </Protected>
           }
         />

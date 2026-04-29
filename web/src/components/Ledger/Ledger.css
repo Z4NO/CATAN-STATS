@@ -252,27 +252,34 @@
 }
 
 .l-tabbar {
-  height: 64px;
   border-top: 1px solid var(--rule-soft);
   background: var(--card);
   display: flex;
-  align-items: center;
-  justify-content: space-around;
-  padding: 0 24px;
+  align-items: stretch;
   position: sticky;
   bottom: 0;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .l-tabbar__item {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 4px;
+  min-width: 0;
+  height: 64px;
+  padding: 0 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
   color: var(--ink3);
   font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 0.5px;
   text-transform: uppercase;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .l-tabbar__item--active {

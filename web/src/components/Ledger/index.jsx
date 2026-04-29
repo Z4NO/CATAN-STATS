@@ -1,4 +1,5 @@
 import './Ledger.css'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 export function LWordmark({ size = 24 }) {
   return (
@@ -115,7 +116,7 @@ export function LTabBar({ active, onChange, items }) {
       { id: 'home', label: 'Grupos' },
       { id: 'play', label: 'Jugar' },
       { id: 'stats', label: 'Stats' },
-      { id: 'me', label: 'Yo' },
+      { id: 'me', label: 'Ajustes' },
     ]
   return (
     <nav className="l-tabbar">
@@ -126,7 +127,10 @@ export function LTabBar({ active, onChange, items }) {
           className={`l-tabbar__item ${active === t.id ? 'l-tabbar__item--active' : ''}`}
           onClick={() => onChange?.(t.id)}
         >
-          <span className="l-tabbar__item-dot" />
+          {t.icon
+            ? <FontAwesomeIcon icon={t.icon} style={{ fontSize: 16 }} />
+            : <span className="l-tabbar__item-dot" />
+          }
           {t.label}
         </button>
       ))}

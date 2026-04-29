@@ -1,15 +1,17 @@
 import { useLocation, useNavigate } from 'react-router-dom'
+import { faUsers, faDiceD6, faChartBar, faGear } from '@fortawesome/free-solid-svg-icons'
 import { LTabBar } from './Ledger/index.jsx'
 
 const TABS = [
-  { id: 'home', label: 'Grupos', path: '/' },
-  { id: 'play', label: 'Jugar', path: null },
-  { id: 'stats', label: 'Stats', path: null },
-  { id: 'me', label: 'Yo', path: '/me' },
+  { id: 'home', label: 'Grupos', path: '/', icon: faUsers },
+  { id: 'play', label: 'Jugar', path: null, icon: faDiceD6 },
+  { id: 'stats', label: 'Stats', path: '/stats', icon: faChartBar },
+  { id: 'me', label: 'Ajustes', path: '/me', icon: faGear },
 ]
 
 function activeTab(pathname) {
   if (pathname === '/' || pathname.startsWith('/groups')) return 'home'
+  if (pathname === '/stats') return 'stats'
   if (pathname === '/me') return 'me'
   return null
 }
