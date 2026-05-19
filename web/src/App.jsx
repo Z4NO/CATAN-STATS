@@ -11,6 +11,8 @@ import MatchWizardPage from './pages/MatchWizardPage.jsx'
 import MatchDetailPage from './pages/MatchDetailPage.jsx'
 import StatsPage from './pages/StatsPage.jsx'
 import SettingsPage from './pages/SettingsPage.jsx'
+import PlayPage from './pages/PlayPage.jsx'
+import ConfigureMatchPage from './pages/ConfigureMatchPage.jsx'
 
 function Protected({ children, tabbar = false }) {
   const content = tabbar ? <MainLayout>{children}</MainLayout> : children
@@ -28,6 +30,22 @@ export default function App() {
           element={
             <Protected tabbar>
               <DashboardPage />
+            </Protected>
+          }
+        />
+        <Route
+          path="/play"
+          element={
+            <Protected tabbar>
+              <PlayPage />
+            </Protected>
+          }
+        />
+        <Route
+          path="/play/configure/:groupId"
+          element={
+            <Protected>
+              <ConfigureMatchPage />
             </Protected>
           }
         />

@@ -45,5 +45,15 @@ class GroupWithMembersOut(GroupOut):
 class GroupWithLogsOut(GroupOut):
     logs: list["GroupLogOut"] = []
 
+class GroupCardOut(BaseModel):
+    id: int
+    name: str
+    last_active: Optional[datetime] = None
+    number_of_members: int
+    
+    model_config = {
+        "from_attributes": True
+    }
+
 from app.schemas.groupMember import GroupMemberOut 
 GroupWithMembersOut.model_rebuild()

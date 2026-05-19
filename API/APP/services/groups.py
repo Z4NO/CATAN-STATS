@@ -2,10 +2,11 @@ import datetime
 import secrets
 from typing import Optional
 from sqlalchemy.orm import Session
+from app.models.match import Match
 from app.models.groupMember import GroupMember
 from app.models.groupLog import GroupLog, ActionTypeEnum
 from app.schemas.groupMember import RoleEnum, MemberStatusFilter
-from app.schemas.group import GroupOut, GroupCreate
+from app.schemas.group import GroupOut, GroupCreate, GroupCardOut
 from app.models.group import Group, PrivacyEnum
 
 MAX_CODE_GENERATION_ATTEMPTS = 5
@@ -139,6 +140,20 @@ def get_all_my_group_memberships(db: Session, user_id: int) -> list[GroupMember]
         GroupMember.banned == False,
     ).all()
 
+def get_all_owned_groups(db: Session, user_id: int) -> list[GroupCardOut]:
+    groups = db.query(Group).filter(Group.creator_id == user_id).all()
+    group_cards = []
+    for group in groups:
+        last_activity = db.query(Match).filter(Match.group_id == group.id).order_by(Match.date.desc()).first()
+        last_active = last_activity.date if last_activity else None
+        number_of_members = db.query(GroupMember).filter(GroupMember.group_id == group.id, GroupMember.active == True).count()
+        group_cards.append(GroupCardOut(
+            id=group.id,
+            name=group.name,
+            last_active=last_active,
+            number_of_members=number_of_members
+        ))
+    return group_cards
 
 def get_group_by_id(db: Session, group_id: int) -> Optional[Group]:
     return db.query(Group).filter(Group.id == group_id).first()

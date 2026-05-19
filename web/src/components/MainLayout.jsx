@@ -4,13 +4,14 @@ import { LTabBar } from './Ledger/index.jsx'
 
 const TABS = [
   { id: 'home', label: 'Grupos', path: '/', icon: faUsers },
-  { id: 'play', label: 'Jugar', path: null, icon: faDiceD6 },
+  { id: 'play', label: 'Jugar', path: '/play', icon: faDiceD6 },
   { id: 'stats', label: 'Stats', path: '/stats', icon: faChartBar },
   { id: 'me', label: 'Ajustes', path: '/me', icon: faGear },
 ]
 
 function activeTab(pathname) {
   if (pathname === '/' || pathname.startsWith('/groups')) return 'home'
+  if (pathname.startsWith('/play')) return 'play'
   if (pathname === '/stats') return 'stats'
   if (pathname === '/me') return 'me'
   return null

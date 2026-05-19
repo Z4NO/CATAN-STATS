@@ -34,3 +34,8 @@ export async function kickMember(groupId, userId) {
   const res = await api.post(`/groups/${groupId}/kick/${userId}`)
   return res.data
 }
+
+export async function listOwnedGroups() {
+  const res = await api.get('/groups/owned')
+  return res.data
+}

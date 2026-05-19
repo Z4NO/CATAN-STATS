@@ -209,3 +209,6 @@ __marimo__/
 # Local database file
 dev.db
 
+# Application logs
+logs/
+
