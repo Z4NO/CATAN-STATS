@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.api.routes import groups, matches, rulesets, stats, user, websocket
+from app.api.routes import groups, matches, notifications, rulesets, stats, user, websocket, lobbys
 from app.config import settings
 from app.utils.logging import setup_logging
 from app.utils.middleware import RequestLoggingMiddleware
@@ -55,6 +55,8 @@ app.include_router(stats.router, prefix="/groups", tags=["stats"])
 app.include_router(matches.match_router, prefix="/matches", tags=["matches"])
 app.include_router(rulesets.router, prefix="/rulesets", tags=["rulesets"])
 app.include_router(websocket.router, prefix="/websocket", tags=["websocket"])
+app.include_router(lobbys.router, prefix="/lobbys", tags=["lobbys"])
+app.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
 
 @app.get("/")
 async def root():

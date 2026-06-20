@@ -6,4 +6,7 @@ from .ruleset import Ruleset
 from .match import Match
 from .matchPlayer import MatchPlayer
 from .matchEvent import MatchEvent
+from .lobby import Lobby, LobbyPlayer
+from .lobby_invite import LobbyInvite
+from .notification import Notification
 

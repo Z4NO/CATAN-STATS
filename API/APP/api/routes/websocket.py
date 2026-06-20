@@ -8,6 +8,17 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+@router.websocket("/ws/lobby/{lobby_id}")
+async def websocket_lobby_endpoint(websocket: WebSocket, lobby_id: int):
+    await manager.connect_to_lobby(websocket, lobby_id)
+    try:
+        while True:
+            data = await websocket.receive_json()
+            # Aquí podrías manejar mensajes específicos para el lobby
+            logger.info(f"Received message for lobby {lobby_id}: {data}")
+    except WebSocketDisconnect:
+        manager.disconnect_from_lobby(websocket, lobby_id)
+        
 @router.websocket("/ws/game/{game_id}")
 async def websocket_endpoint(websocket: WebSocket, game_id: int):
     await manager.connect(websocket, game_id)

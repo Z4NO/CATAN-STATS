@@ -21,3 +21,4 @@ class Match(Base):
     ruleset = relationship("Ruleset", back_populates="matches")
     match_players = relationship("MatchPlayer", back_populates="match", cascade="all, delete-orphan")
     events = relationship("MatchEvent", back_populates="match", cascade="all, delete-orphan")
+    lobby = relationship("Lobby", back_populates="match", uselist=False)

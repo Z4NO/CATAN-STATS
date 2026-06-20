@@ -26,3 +26,4 @@ class Group(Base):
     members = relationship("GroupMember", back_populates="group")
     matches = relationship("Match", back_populates="group", cascade="all, delete-orphan")
     logs = relationship("GroupLog", back_populates="group", cascade="all, delete-orphan")
+    lobbies = relationship("Lobby", back_populates="group", cascade="all, delete-orphan")

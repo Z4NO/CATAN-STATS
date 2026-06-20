@@ -20,5 +20,7 @@ class User(Base):
     match_participations = relationship("MatchPlayer", back_populates="player")
     match_events = relationship("MatchEvent", back_populates="player")
     logs = relationship("GroupLog", back_populates="user", cascade="all, delete-orphan")
+    lobby_players = relationship("LobbyPlayer", back_populates="user")
+    notifications = relationship("Notification", back_populates="user", cascade="all, delete-orphan")
 
     

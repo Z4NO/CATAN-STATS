@@ -23,3 +23,4 @@ class Ruleset(Base):
     max_players = Column(Integer, nullable=False, default=4)
 
     matches = relationship("Match", back_populates="ruleset", cascade="all, delete-orphan")
+    lobbies = relationship("Lobby", back_populates="ruleset")

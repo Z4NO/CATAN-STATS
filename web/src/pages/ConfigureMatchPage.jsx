@@ -4,6 +4,7 @@ import { LAvatar, LButton, LChip, LSectionLabel, LTopBar } from '../components/L
 import { useAuth } from '../auth/AuthContext.jsx'
 import { getGroupDetail, listGroupMembers } from '../api/groups.js'
 import { listRulesets } from '../api/rulesets.js'
+import { createLobby, inviteToLobby } from '../api/lobby.js'
 
 const MIN_PLAYERS = 3
 const VP_MIN = 8
@@ -62,6 +63,8 @@ export default function ConfigureMatchPage() {
   const [vp, setVp] = useState(10)
   const [longestRoad, setLongestRoad] = useState(true)
   const [largestArmy, setLargestArmy] = useState(true)
+  const [sending, setSending] = useState(false)
+  const [sendError, setSendError] = useState(null)
 
   useEffect(() => {
     let cancelled = false
@@ -133,19 +136,36 @@ export default function ConfigureMatchPage() {
     })
   }
 
-  const invitedCount = selectedPlayerIds.filter(id => id !== user?.id).length
-  const canSend = !!selectedRulesetId && selectedPlayerIds.length >= MIN_PLAYERS
+  // For button label only — host always excluded from invites
+  const invitedCount = selectedPlayerIds.filter(id => user?.id != null && id !== user.id).length
+  const canSend = !!selectedRulesetId && selectedPlayerIds.length >= MIN_PLAYERS && !sending
 
-  function handleSend() {
-    navigate(`/play/lobby/${groupId}`, {
-      state: {
+  async function handleSend() {
+    // Capture hostId inside the handler so it's never stale or undefined
+    const hostId = user?.id
+    if (hostId == null) {
+      setSendError('Sesión no válida, recarga la página')
+      return
+    }
+
+    setSending(true)
+    setSendError(null)
+    try {
+      const { lobby } = await createLobby({
+        groupId: parseInt(groupId),
         rulesetId: selectedRulesetId,
-        playerIds: selectedPlayerIds,
-        hostId: user?.id,
-        invitedIds: selectedPlayerIds.filter(id => id !== user?.id),
-        rules: { vp, longestRoad, largestArmy },
-      },
-    })
+      })
+
+      // Invite everyone except the host (host is already in the lobby)
+      const idsToInvite = selectedPlayerIds.filter(id => id !== hostId)
+      await Promise.all(idsToInvite.map(uid => inviteToLobby(lobby.id, uid)))
+
+      navigate(`/play/lobby/${lobby.id}`)
+    } catch (err) {
+      setSendError(err.response?.data?.detail || 'Error creando la partida')
+    } finally {
+      setSending(false)
+    }
   }
 
   if (loading) return (
@@ -347,11 +367,15 @@ export default function ConfigureMatchPage() {
         position: 'fixed', bottom: 0, left: 0, right: 0,
         padding: '12px 22px 28px',
         background: 'var(--paper)', borderTop: '1px solid var(--rule-soft)',
+        display: 'flex', flexDirection: 'column', gap: 8,
       }}>
+        {sendError && <p className="error-text" style={{ fontSize: 12, margin: 0, textAlign: 'center' }}>{sendError}</p>}
         <LButton variant="primary" size="lg" full disabled={!canSend} onClick={handleSend}>
-          {canSend
-            ? `Enviar invitaciones · ${invitedCount} jugador${invitedCount !== 1 ? 'es' : ''}`
-            : 'Selecciona al menos 3 jugadores'}
+          {sending
+            ? 'Creando partida…'
+            : canSend
+              ? `Enviar invitaciones · ${invitedCount} jugador${invitedCount !== 1 ? 'es' : ''}`
+              : 'Selecciona al menos 3 jugadores'}
         </LButton>
       </div>
     </>
